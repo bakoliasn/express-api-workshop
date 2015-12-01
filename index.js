@@ -16,11 +16,14 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.get('/AddressBooks', function(req, res){
-    connection.query("SELECT * FROM AddressBook WHERE AddressBook.accountId='" + req.accountId +"'", function(err, result){
+app.get('/AddressBooks/:id', function(req, res){
+    connection.query("SELECT * FROM AddressBook WHERE AddressBook.accountId='" + req.params.id +"'", function(err, result){
         if(err) throw err;
-    
+    if(result.length < 1){
+        res.send("ERROR 404");
+    } else{
     res.json(result);
+    }
     });
 });
 
