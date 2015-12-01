@@ -16,20 +16,42 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.get('/AddressBooks/:id', function(req, res){
-    connection.query("SELECT * FROM AddressBook WHERE AddressBook.accountId='" + req.params.id +"'", function(err, result){
-        if(err) throw err;
-    if(result.length < 1){
-        res.send("ERROR 404");
-    } else{
-    res.json(result);
-    }
+app.get('/AddressBooks/:id', function(req, res) {
+    connection.query("SELECT * FROM AddressBook WHERE AddressBook.accountId='" + req.params.id + "'", function(err, result) {
+        if (err) throw err;
+        if (result.length < 1) {
+            res.send("ERROR 404");
+        }
+        else {
+            res.json(result);
+        }
     });
 });
 
-var server = app.listen(process.env.PORT, process.env.IP, function () {
- var host = server.address().address;
- var port = server.address().port;
+app.post('/AddressBooks', function(req, res) {
+    if (!req.body.name) {
+        res.status(404).send();
+    }
+    else {
+        connection.query("INSERT INTO AddressBook (name, AccountId) VALUES ('" + req.body.name + "','" + req.accountId + "')", function(err, result) {
+            if (err) throw err;
+            res.json(result);
+            console.log(result);
+        });
+    }
+});
 
- console.log('Example app listening at http://%s:%s', host, port);
+
+
+
+
+
+
+
+
+var server = app.listen(process.env.PORT, process.env.IP, function() {
+    var host = server.address().address;
+    var port = server.address().port;
+
+    console.log('Example app listening at http://%s:%s', host, port);
 });
