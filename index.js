@@ -7,7 +7,6 @@ var connection = db.createConnection({
     host: '127.0.0.1',
     database: 'addressbook'
 });
-
 var app = express();
 app.use(bodyParser.json());
 
@@ -29,6 +28,9 @@ app.get('/AddressBooks/:id', function(req, res) {
 });
 
 app.post('/AddressBooks', function(req, res) {
+    if (req.body.accountId !== req.accountId){
+        res.status(401).send();
+    }
     if (!req.body.name) {
         res.status(404).send();
     }
