@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 
 var db = require('mysql');
 var connection = db.createConnection({
-    user: 'ziad_saab',
+    user: 'bakoliasn',
     host: '127.0.0.1',
     database: 'addressbook'
 });
@@ -16,4 +16,17 @@ app.use(function(req, res, next) {
     next();
 });
 
-//app.get('...
+app.get('/AddressBooks', function(req, res){
+    connection.query("SELECT * FROM AddressBook WHERE AddressBook.accountId='" + req.accountId +"'", function(err, result){
+        if(err) throw err;
+    
+    res.json(result);
+    });
+});
+
+var server = app.listen(process.env.PORT, process.env.IP, function () {
+ var host = server.address().address;
+ var port = server.address().port;
+
+ console.log('Example app listening at http://%s:%s', host, port);
+});
