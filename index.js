@@ -11,4 +11,9 @@ var connection = db.createConnection({
 var app = express();
 app.use(bodyParser.json());
 
-// app.get('...
+app.use(function(req, res, next) {
+    req.accountId = 1;
+    next();
+});
+
+//app.get('...
