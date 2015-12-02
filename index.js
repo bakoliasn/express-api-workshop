@@ -11,7 +11,7 @@ var app = express();
 app.use(bodyParser.json());
 
 app.use(function(req, res, next) {
-    req.accountId = 1;
+    req.accountId = 2;
     next();
 });
 
@@ -70,6 +70,26 @@ app.put("/AddressBooks/:id", function (req, res){
     
     });
 });
+
+
+app.get('/Entry/:id', function(req, res) {
+    connection.query("SELECT * FROM Entry JOIN AddressBook ON Entry.addressBookId=AddressBook.id WHERE AddressBook.accountId='" + req.accountId + "' AND Entry.id='" + req.params.id + "'", function(err, result) {
+        if (err) throw err;
+        // if (result.length < 1) {
+        //     res.send("ERROR 404");
+        //     console.log(result);
+        // }
+       // else {
+            res.json(result);
+            console.log(result);
+       // }
+    });
+});
+
+
+
+
+
 
 
 
