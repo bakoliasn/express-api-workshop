@@ -18,6 +18,9 @@ app.use(function(req, res, next) {
 app.get('/AddressBooks/:id', function(req, res) {
     connection.query("SELECT * FROM AddressBook WHERE AddressBook.accountId='" + req.params.id + "'", function(err, result) {
         if (err) throw err;
+        if (req.body.accountId !== req.accountId) {
+        res.status(401).send();
+    }
         if (result.length < 1) {
             res.send("ERROR 404");
         }
@@ -28,9 +31,6 @@ app.get('/AddressBooks/:id', function(req, res) {
 });
 
 app.post('/AddressBooks', function(req, res) {
-    if (req.body.accountId !== req.accountId){
-        res.status(401).send();
-    }
     if (!req.body.name) {
         res.status(404).send();
     }
@@ -43,7 +43,17 @@ app.post('/AddressBooks', function(req, res) {
     }
 });
 
+app.delete('/delete/AddressBooks/:id', function(req, res){
 
+    connection.query("DELETE FROM AddressBook WHERE AddressBook.id='" + req.params.id + "' AND AddressBook.accountId='" + req.body.accountId + "'", function(err, result){
+        if(err) throw err;
+        console.log(result);
+        res.json(result);
+        if(result.affectedRows === 0){
+            console.log("\n-----INVALID ACCOUNT ID-----\n");
+        }
+    });
+});
 
 
 
