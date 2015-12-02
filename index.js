@@ -11,7 +11,7 @@ var app = express();
 app.use(bodyParser.json());
 
 app.use(function(req, res, next) {
-    req.accountId = 1;
+    req.accountId = 2;
     next();
 });
 
@@ -111,6 +111,19 @@ app.delete('/Entry/:id', function(req, res){
     });
 });
 
+app.put('/Entry/:id', function(req, res){
+
+    connection.query("UPDATE Entry, AddressBook SET Entry.firstName='" + req.body.firstName + "', Entry.lastName='" + req.body.lastName + "', Entry.birthday='" + req.body.birthday + "' WHERE Entry.id='" + req.params.id + "' AND Entry.addressBookId=AddressBook.id AND AddressBook.accountId='" + req.accountId + "'", function(err, result){
+          if(err) throw err;
+        if(result.affectedRows === 0){
+            res.status(404).send();
+            console.log("INVALID ID");
+        } else {
+        console.log(result);
+        res.json(result);
+}
+    });
+});
 
 
 
