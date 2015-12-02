@@ -11,7 +11,7 @@ var app = express();
 app.use(bodyParser.json());
 
 app.use(function(req, res, next) {
-    req.accountId = 2;
+    req.accountId = 1;
     next();
 });
 
@@ -75,17 +75,41 @@ app.put("/AddressBooks/:id", function (req, res){
 app.get('/Entry/:id', function(req, res) {
     connection.query("SELECT * FROM Entry JOIN AddressBook ON Entry.addressBookId=AddressBook.id WHERE AddressBook.accountId='" + req.accountId + "' AND Entry.id='" + req.params.id + "'", function(err, result) {
         if (err) throw err;
-        // if (result.length < 1) {
-        //     res.send("ERROR 404");
-        //     console.log(result);
-        // }
-       // else {
+        if (result.length < 1) {
+            res.send("ERROR 404");
+           console.log(result);
+         }
+        else {
             res.json(result);
             console.log(result);
-       // }
+        }
     });
 });
 
+
+app.post('/Entry', function(req, res) {
+
+        connection.query("INSERT INTO Entry (firstName, lastName, birthday, addressbookId) VALUES ('" + req.body.firstName + "', '"+ req.body.lastName + "', '" + req.body.birthday + "', '" + req.body.addressbookId + "')", function(err, result) {
+            if (err) throw err;
+            res.json(result);
+            console.log(result);
+        });
+    
+});
+
+app.delete('/Entry/:id', function(req, res){
+
+    connection.query("DELETE Entry FROM Entry, AddressBook WHERE Entry.id='" + req.params.id + "' AND Entry.addressBookId=AddressBook.id AND AddressBook.accountId='" + req.accountId + "'", function(err, result){
+          if(err) throw err;
+        if(result.affectedRows === 0){
+            res.status(404).send();
+            console.log("INVALID ID");
+        } else {
+        console.log(result);
+        res.json(result);
+}
+    });
+});
 
 
 
