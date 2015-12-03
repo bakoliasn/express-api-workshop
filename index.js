@@ -13,22 +13,66 @@ var app = express();
 app.use(bodyParser.json());
 
 app.use(function(req, res, next) {
-    req.accountId = 1;
-    next();
+    if (!req.query.token) {
+        var query = "SELECT * FROM Tokens having token='" + req.body.token + "'";
+        connection.query(query, function(err, result) {
+            if (err) throw err;
+            // if (result.length < 0) {
+            //     req.accountId = null;
+            // }
+            // else {
+            req.accountId = result[0].accountId;
+            //  }
+            
+            next();
+        });
+    }
+    else {
+        connection.query("SELECT * FROM Account JOIN Tokens ON Account.id=Tokens.accountId WHERE Tokens.token='" + req.query.token + "'", function(err, result) {
+            console.log(result);
+            if (err) throw err;
+            if (result.length < 0) {
+                req.accountId = null;
+            }
+            else {
+                req.accountId = result[0].accountId;
+            }
+
+            next();
+
+
+        });
+    }
 });
 
-// app.post('/Accounts/login', function(req, res) {
-//     connection.query("SELECT * FROM Account WHERE email='" + req.body.email, function(err, result) {
-//         if (err) throw err;
-//         if (bcrypt.compareSync(req.body.password, result.password)) {
-//             var token = bcrypt.
-            
-//         } else {
-//             res.status(404).send("Invalid password!");
-//         }
-//     });
 
-// });
+
+
+
+app.post('/Accounts/login', function(req, res) {
+    console.log("SELECT * FROM Account WHERE email='" + req.body.email + "'");
+    connection.query("SELECT * FROM Account WHERE email='" + req.body.email + "'", function(err, result1) {
+         if (err) throw err;
+        var hashComp = bcrypt.compareSync(req.body.password, result1[0].password);
+        console.log(hashComp);
+        if (err) throw err;
+        if (hashComp) {
+            var salt = bcrypt.genSaltSync();
+            connection.query("INSERT INTO Tokens (token, accountId) VALUES('" + salt + "', '" + result1[0].id + "')", function(err, result2) {
+                if (err) throw err;
+
+                res.send({
+                    "token": salt
+                });
+                console.log(result2);
+            });
+        }
+        else {
+            res.status(404).send("Invalid password!");
+        }
+    });
+});
+
 
 app.post('/Accounts/userSignUp', function(req, res) {
     var hash = bcrypt.hashSync(req.body.password);
@@ -44,7 +88,7 @@ app.post('/Accounts/userSignUp', function(req, res) {
 
 app.get('/AddressBooks', function(req, res) {
     connection.query("SELECT * FROM AddressBook WHERE AddressBook.accountId=" + req.accountId, function(err, result) {
-        if (err) throw err;
+       // if (err) throw err;
         res.send(result);
     });
 });
@@ -67,17 +111,17 @@ app.get('/AddressBooks/:id', function(req, res) {
 
 app.post('/AddressBooks', function(req, res) {
     if (!req.body.name) {
-        res.status(404).send();
+        res.status(404).send("BODYNAME");
     }
     else {
         connection.query("SELECT * FROM AddressBook WHERE AddressBook.accountId=" + req.accountId, function(err, result) {
-            if (err) throw err;
-            if (result.length < 0) {
-                res.status(404).send();
+            // if (err) throw err;
+            if (result && result.length < 1) {
+                res.status(404).send("EMNPITYRESULT");
             }
             else {
                 connection.query("INSERT INTO AddressBook (name, AccountId) VALUES ('" + req.body.name + "','" + req.accountId + "')", function(err, result) {
-                    if (err) throw err;
+                    //  if (err) throw err;
                     res.json(result);
                     console.log(result);
                 });
